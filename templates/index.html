@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Memoria - Inicio</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulador de Traducción de Direcciones</h1>
+        <p>Selecciona una variable del proceso y configura la memoria:</p>
+        <form action="/traducir" method="POST">
+            <label for="variable">Variable:</label>
+            <select name="variable" id="variable">
+                {% for var in variables %}
+                    <option value="{{ var }}">{{ var }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="algoritmo">Algoritmo de reemplazo:</label>
+            <select name="algoritmo" id="algoritmo">
+                <option value="FIFO">FIFO</option>
+                <option value="LRU">LRU</option>
+            </select>
+
+            <label for="marcos">Número de marcos de memoria física:</label>
+            <input type="number" id="marcos" name="marcos" min="1" max="16" value="3" required>
+
+            <label>
+                <input type="checkbox" name="modo_paso" id="modo_paso">
+                Ejecutar paso a paso
+            </label>
+
+            <button type="submit">Ejecutar Simulación</button>
+        </form>
+    </div>
+</body>
+</html>
