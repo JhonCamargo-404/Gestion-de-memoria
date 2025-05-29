@@ -2,24 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resultado de Traducción</title>
+    <title>Resultado de Simulación</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Resultado de Traducción de Dirección</h1>
+        <h1>Resultados de Traducción y Estado de Memoria</h1>
 
-        <p><strong>Variable:</strong> {{ resultado.variable }}</p>
-        <p><strong>Dirección Virtual:</strong> {{ resultado.direccion_virtual }}</p>
-        <p><strong>Número de Página:</strong> {{ resultado.pagina }}</p>
-        <p><strong>Offset:</strong> {{ resultado.offset }}</p>
-        <p><strong>Dirección Física:</strong> {{ resultado.direccion_fisica }}</p>
+        {% for resultado in resultados %}
+            <div style="margin-bottom: 30px;">
+                <h2>Proceso: {{ resultado.proceso }}</h2>
+                <p><strong>Variable:</strong> {{ resultado.variable }}</p>
+                <p><strong>Dirección Virtual:</strong> {{ resultado.direccion_virtual }}</p>
+                <p><strong>Número de Página:</strong> {{ resultado.pagina }}</p>
+                <p><strong>Offset:</strong> {{ resultado.offset }}</p>
+                <p><strong>Dirección Física:</strong> {{ resultado.direccion_fisica }}</p>
 
-        <h2>Configuración Utilizada</h2>
-        <p><strong>Algoritmo de reemplazo:</strong> {{ resultado.algoritmo }}</p>
-        <p><strong>Marcos de memoria física:</strong> {{ resultado.marcos }}</p>
+                <h3>Tabla de Páginas del Proceso</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Página</th>
+                            <th>Marco</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pagina, marco in resultado.tabla_paginas.items() %}
+                            <tr>
+                                <td>{{ pagina }}</td>
+                                <td>{{ marco }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
 
-        <h2>Estado de la Memoria Física</h2>
+        <hr>
+
+        <h2>Estado Global de la Memoria Física</h2>
         <table>
             <thead>
                 <tr>
@@ -29,7 +50,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for marco, info in resultado.estado_memoria.memoria_fisica.items() %}
+                {% for marco, info in estado_memoria.memoria_fisica.items() %}
                     <tr>
                         <td>{{ marco }}</td>
                         <td>{{ info[0] if info else 'Libre' }}</td>
@@ -41,32 +62,26 @@
 
         <h2>Páginas en Swap</h2>
         <ul>
-            {% for pid, pagina in resultado.estado_memoria.swap %}
-                <li>Proceso {{ pid }} - Página {{ pagina }}</li>
+            {% for pid, pagina in estado_memoria.swap %}
+                <li>Proceso {{ pid }} — Página {{ pagina }}</li>
             {% else %}
                 <li>No hay páginas en swap.</li>
             {% endfor %}
         </ul>
 
-        <h2>Tabla de Páginas del Proceso</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Página</th>
-                    <th>Marco</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pagina, marco in resultado.tabla_paginas.items() %}
-                    <tr>
-                        <td>{{ pagina }}</td>
-                        <td>{{ marco }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <hr>
 
-        <a href="/">← Volver al inicio</a>
+        <h2>Estadísticas de Rendimiento</h2>
+        <ul>
+            <li><strong>Total de accesos:</strong> {{ estadisticas.accesos }}</li>
+            <li><strong>Fallos de página:</strong> {{ estadisticas.fallos_pagina }}</li>
+            <li><strong>Reemplazos realizados:</strong> {{ estadisticas.reemplazos }}</li>
+            <li><strong>Tasa de fallos:</strong> {{ estadisticas.tasa_fallos }}%</li>
+        </ul>
+
+        <hr>
+
+        <p><a href="/">← Volver al inicio</a></p>
     </div>
 </body>
 </html>

@@ -6,114 +6,67 @@ from memory.mmu import traducir_direccion_con_gestion, obtener_info_traduccion
 app = Flask(__name__)
 app.secret_key = "simulador_memoria"
 
-# Crear proceso de prueba
-tabla_simbolos = {
-    "varX": 0x0012,
-    "contador": 0x0100,
-    "buffer": 0x0200,
-    "resultado": 0x0300
-}
+# Procesos de ejemplo (configurables)
+procesos = [
+    Proceso("App1", 0x08000000, {"varX": 0x0012, "contador": 0x0100}, 2, "fijo"),
+    Proceso("App2", 0x10000000, {"buffer": 0x0200, "resultado": 0x0300}, 3, "variable"),
+    Proceso("App3", 0x20000000, {"temp": 0x0040, "flag": 0x0100}, 1, "fijo"),
+    Proceso("App4", 0x30000000, {"pos": 0x0050, "limit": 0x0090}, 4, "variable"),
+    Proceso("App5", 0x40000000, {"msg": 0x0020, "code": 0x0080}, 2, "fijo"),
+]
 
-proceso_demo = Proceso(
-    nombre="App1",
-    base_virtual=0x08000000,
-    tabla_simbolos=tabla_simbolos
-)
+# Buscar procesos por nombre
+def obtener_procesos_seleccionados(nombres):
+    return [p for p in procesos if p.nombre in nombres]
 
 @app.route("/")
 def index():
-    return render_template("index.html", variables=list(tabla_simbolos.keys()))
+    return render_template("index.html", procesos=procesos)
 
 @app.route("/traducir", methods=["POST"])
 def traducir():
-    variable = request.form["variable"]
+    nombres_procesos = request.form.getlist("procesos")
     algoritmo = request.form.get("algoritmo", "FIFO")
     marcos = int(request.form.get("marcos", 3))
     modo_paso = "modo_paso" in request.form
 
     # Guardar en sesión
-    session["variable"] = variable
+    session["procesos"] = nombres_procesos
     session["algoritmo"] = algoritmo
     session["marcos"] = marcos
     session["modo_paso"] = modo_paso
 
-    if modo_paso:
-        return redirect(url_for("paso_1"))
-    else:
-        gestor_memoria = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
-        direccion_virtual = proceso_demo.obtener_direccion_virtual(variable)
-        direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
-            proceso_demo, direccion_virtual, gestor_memoria
-        )
-
-        resultado = {
-            "variable": variable,
-            "direccion_virtual": hex(direccion_virtual),
-            "pagina": pagina,
-            "offset": offset,
-            "direccion_fisica": hex(direccion_fisica),
-            "estado_memoria": gestor_memoria.obtener_estado(),
-            "tabla_paginas": proceso_demo.obtener_tabla_paginas(),
-            "algoritmo": algoritmo,
-            "marcos": marcos
-        }
-
-        return render_template("resultado.html", resultado=resultado)
-
-@app.route("/paso1")
-def paso_1():
-    variable = session.get("variable")
-    algoritmo = session.get("algoritmo")
-    marcos = session.get("marcos")
-
-    info = {
-        "mensaje": f"Buscando la variable '{variable}' en la tabla de símbolos...",
-        "siguiente": url_for("paso_2"),
-        "paso": 1
-    }
-    return render_template("paso.html", info=info)
-
-@app.route("/paso2")
-def paso_2():
-    variable = session.get("variable")
-    direccion_virtual = proceso_demo.obtener_direccion_virtual(variable)
-    pagina, offset = direccion_virtual // 4096, direccion_virtual % 4096
-
-    session["direccion_virtual"] = direccion_virtual
-    session["pagina"] = pagina
-    session["offset"] = offset
-
-    info = {
-        "mensaje": f"Dirección virtual calculada: {hex(direccion_virtual)}. Página: {pagina}, Offset: {offset}",
-        "siguiente": url_for("paso_3"),
-        "paso": 2
-    }
-    return render_template("paso.html", info=info)
-
-@app.route("/paso3")
-def paso_3():
-    algoritmo = session.get("algoritmo")
-    marcos = session.get("marcos")
-    direccion_virtual = session.get("direccion_virtual")
-
+    procesos_seleccionados = obtener_procesos_seleccionados(nombres_procesos)
     gestor_memoria = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
-    direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
-        proceso_demo, direccion_virtual, gestor_memoria
-    )
 
-    resultado = {
-        "variable": session.get("variable"),
-        "direccion_virtual": hex(direccion_virtual),
-        "pagina": pagina,
-        "offset": offset,
-        "direccion_fisica": hex(direccion_fisica),
-        "estado_memoria": gestor_memoria.obtener_estado(),
-        "tabla_paginas": proceso_demo.obtener_tabla_paginas(),
-        "algoritmo": algoritmo,
-        "marcos": marcos
-    }
+    resultados = []
 
-    return render_template("resultado.html", resultado=resultado)
+    for proceso in procesos_seleccionados:
+        for variable in proceso.tabla_simbolos:
+            direccion_virtual = proceso.obtener_direccion_virtual(variable)
+            direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
+                proceso, direccion_virtual, gestor_memoria
+            )
+
+            resultados.append({
+                "proceso": proceso.nombre,
+                "variable": variable,
+                "direccion_virtual": hex(direccion_virtual),
+                "pagina": pagina,
+                "offset": offset,
+                "direccion_fisica": hex(direccion_fisica),
+                "tabla_paginas": proceso.obtener_tabla_paginas()
+            })
+
+    estado_memoria = gestor_memoria.obtener_estado()
+    estadisticas = gestor_memoria.obtener_estadisticas()
+
+    return render_template("resultado.html",
+                           resultados=resultados,
+                           estado_memoria=estado_memoria,
+                           estadisticas=estadisticas,
+                           algoritmo=algoritmo,
+                           marcos=marcos)
 
 if __name__ == "__main__":
     app.run(debug=True)

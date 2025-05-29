@@ -10,14 +10,23 @@ class MemoryManager:
         self.algoritmo = algoritmo
         self.tiempo = 0           # contador de accesos
 
+        # Estadísticas
+        self.total_accesos = 0
+        self.total_fallos_pagina = 0
+        self.total_reemplazos = 0
+
     def cargar_pagina(self, proceso, pagina):
         pid = id(proceso)
+        self.total_accesos += 1
 
         # Verificar si ya está cargada
         for marco, (p, pag) in self.memoria_fisica.items():
             if p == pid and pag == pagina:
                 self.actualizar_lru(pid, pagina)
                 return marco
+
+        # Página no estaba en memoria → fallo de página
+        self.total_fallos_pagina += 1
 
         # Verificar espacio disponible
         if len(self.memoria_fisica) < self.num_marcos:
@@ -28,6 +37,7 @@ class MemoryManager:
             return marco_libre
 
         # Si está llena → reemplazo
+        self.total_reemplazos += 1
         marco_reemplazo = self.seleccionar_marco_reemplazo()
         pid_old, pag_old = self.memoria_fisica[marco_reemplazo]
         self.swap.add((pid_old, pag_old))
@@ -60,9 +70,17 @@ class MemoryManager:
         raise RuntimeError("No hay marcos libres disponibles")
 
     def obtener_estado(self):
-        """Devuelve el estado actual de memoria y swap para visualización."""
         memoria = {i: self.memoria_fisica.get(i, None) for i in range(self.num_marcos)}
         return {
             "memoria_fisica": memoria,
             "swap": list(self.swap)
+        }
+
+    def obtener_estadisticas(self):
+        tasa_fallos = (self.total_fallos_pagina / self.total_accesos * 100) if self.total_accesos > 0 else 0
+        return {
+            "accesos": self.total_accesos,
+            "fallos_pagina": self.total_fallos_pagina,
+            "reemplazos": self.total_reemplazos,
+            "tasa_fallos": round(tasa_fallos, 2)
         }

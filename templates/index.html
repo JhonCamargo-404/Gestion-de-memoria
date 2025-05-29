@@ -7,29 +7,45 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simulador de Traducción de Direcciones</h1>
-        <p>Selecciona una variable del proceso y configura la memoria:</p>
-        <form action="/traducir" method="POST">
-            <label for="variable">Variable:</label>
-            <select name="variable" id="variable">
-                {% for var in variables %}
-                    <option value="{{ var }}">{{ var }}</option>
-                {% endfor %}
-            </select>
+        <h1>Simulador de Gestión de Memoria Virtual y MMU</h1>
+        <p>Selecciona los procesos que deseas simular y configura los parámetros:</p>
 
-            <label for="algoritmo">Algoritmo de reemplazo:</label>
+        <form action="/traducir" method="POST">
+            <fieldset>
+                <legend><strong>Procesos Disponibles</strong></legend>
+                {% for proceso in procesos %}
+                    <div style="margin-bottom: 10px;">
+                        <label>
+                            <input type="checkbox" name="procesos" value="{{ proceso.nombre }}">
+                            <strong>{{ proceso.nombre }}</strong>
+                            — Tamaño: {{ proceso.tamano_paginas }} páginas,
+                            Esquema: {{ proceso.esquema_carga }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </fieldset>
+
+            <hr>
+
+            <label for="algoritmo"><strong>Algoritmo de reemplazo:</strong></label>
             <select name="algoritmo" id="algoritmo">
                 <option value="FIFO">FIFO</option>
                 <option value="LRU">LRU</option>
             </select>
 
-            <label for="marcos">Número de marcos de memoria física:</label>
-            <input type="number" id="marcos" name="marcos" min="1" max="16" value="3" required>
+            <br><br>
+
+            <label for="marcos"><strong>Número de marcos de memoria física:</strong></label>
+            <input type="number" id="marcos" name="marcos" min="1" max="32" value="4" required>
+
+            <br><br>
 
             <label>
                 <input type="checkbox" name="modo_paso" id="modo_paso">
-                Ejecutar paso a paso
+                Ejecutar paso a paso (deshabilitado temporalmente)
             </label>
+
+            <br><br>
 
             <button type="submit">Ejecutar Simulación</button>
         </form>
