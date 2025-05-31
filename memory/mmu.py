@@ -1,4 +1,4 @@
-PAGE_SIZE = 4096  # Tamaño fijo de página: 4KB
+PAGE_SIZE = 4096 
 
 def dividir_direccion_virtual(direccion_virtual):
     pagina = direccion_virtual // PAGE_SIZE

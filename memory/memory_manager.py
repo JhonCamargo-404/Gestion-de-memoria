@@ -3,14 +3,12 @@ from collections import deque
 class MemoryManager:
     def __init__(self, num_marcos=4, algoritmo="FIFO"):
         self.num_marcos = num_marcos
-        self.memoria_fisica = {}  # marco: (pid, numero_pagina)
-        self.swap = set()         # conjunto de paginas en swap
-        self.pila_fifo = deque()  # para FIFO
-        self.recientes = {}       # para LRU: {(pid, pagina): timestamp}
+        self.memoria_fisica = {}  
+        self.swap = set()         
+        self.pila_fifo = deque() 
+        self.recientes = {}     
         self.algoritmo = algoritmo
-        self.tiempo = 0           # contador de accesos
-
-        # Estadísticas
+        self.tiempo = 0      
         self.total_accesos = 0
         self.total_fallos_pagina = 0
         self.total_reemplazos = 0
@@ -19,16 +17,13 @@ class MemoryManager:
         pid = id(proceso)
         self.total_accesos += 1
 
-        # Verificar si ya está cargada
         for marco, (p, pag) in self.memoria_fisica.items():
             if p == pid and pag == pagina:
                 self.actualizar_lru(pid, pagina)
                 return marco
 
-        # Página no estaba en memoria → fallo de página
         self.total_fallos_pagina += 1
 
-        # Verificar espacio disponible
         if len(self.memoria_fisica) < self.num_marcos:
             marco_libre = self._primer_marco_libre()
             self.memoria_fisica[marco_libre] = (pid, pagina)
@@ -36,7 +31,6 @@ class MemoryManager:
             self.pila_fifo.append(marco_libre)
             return marco_libre
 
-        # Si está llena → reemplazo
         self.total_reemplazos += 1
         marco_reemplazo = self.seleccionar_marco_reemplazo()
         pid_old, pag_old = self.memoria_fisica[marco_reemplazo]

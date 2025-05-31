@@ -50,7 +50,6 @@ def traducir():
         gestor_memoria_global = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
         return redirect(url_for("paso"))
 
-    # Modo normal (flujo completo)
     procesos_seleccionados = obtener_procesos_seleccionados(nombres_procesos)
     gestor_memoria = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
     resultados = []
@@ -59,18 +58,12 @@ def traducir():
     for proceso in procesos_seleccionados:
         for variable in proceso.tabla_simbolos:
             direccion_virtual = proceso.obtener_direccion_virtual(variable)
-
-            # Capturar antes del estado de memoria
             estado_antes = set((pid, pag) for pid, pag in gestor_memoria.swap)
-
             direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
                 proceso, direccion_virtual, gestor_memoria
             )
 
-            # Capturar después del estado de swap
             estado_despues = set((pid, pag) for pid, pag in gestor_memoria.swap)
-
-            # Verificar si el swap cambió por este paso
             swap_ocurrido = len(estado_despues) > len(estado_antes)
 
             reemplazo = estado_despues - estado_antes
@@ -114,26 +107,20 @@ def paso():
     paso_actual = session.get("paso_actual", 0)
     cola = session.get("cola_pasos", [])
     if paso_actual >= len(cola):
-        return redirect(url_for("index"))  # Finaliza paso a paso
-
+        return redirect(url_for("index"))  
     nombre_proc, variable = cola[paso_actual]
     proceso = next(p for p in procesos if p.nombre == nombre_proc)
-
     algoritmo = session.get("algoritmo", "FIFO")
     marcos = session.get("marcos", 3)
-
-    # Asegurar gestor único
     if gestor_memoria_global is None:
         gestor_memoria_global = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
     gestor_memoria = gestor_memoria_global
-
     direccion_virtual = proceso.obtener_direccion_virtual(variable)
     direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
         proceso, direccion_virtual, gestor_memoria
     )
 
     session["paso_actual"] = paso_actual + 1
-
     info = {
         "proceso": proceso.nombre,
         "variable": variable,

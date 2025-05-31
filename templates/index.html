@@ -4,35 +4,30 @@
     <meta charset="UTF-8">
     <title>Simulador de Memoria - Inicio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
 <form action="/traducir" method="POST">
     <div class="layout">
 
-        <!-- Panel izquierdo -->
         <div class="panel-izquierdo">
             <div class="bloque">
                 <h3>Configuración de Simulación</h3>
-
                 <label for="algoritmo"><strong>Algoritmo de reemplazo:</strong></label>
                 <select name="algoritmo" id="algoritmo">
                     <option value="FIFO" {% if algoritmo == 'FIFO' %}selected{% endif %}>FIFO</option>
                     <option value="LRU" {% if algoritmo == 'LRU' %}selected{% endif %}>LRU</option>
                 </select>
-
                 <br><br>
 
                 <label for="marcos"><strong>Número de marcos:</strong></label>
                 <input type="number" name="marcos" id="marcos" value="{{ marcos if marcos else 3 }}" min="1" max="32" required>
-
                 <br><br>
 
                 <label>
                     <input type="checkbox" name="modo_paso" {% if session.get('modo_paso') %}checked{% endif %}>
                     Ejecutar paso a paso
                 </label>
-
                 <br><br>
                 <button type="submit">Iniciar Simulación</button>
             </div>
@@ -51,26 +46,47 @@
             </div>
         </div>
 
-        <!-- Panel derecho -->
         <div class="panel-derecho">
 
             {% if flujo_ejecucion %}
                 <h2>Flujo de Ejecución</h2>
                 <div class="flujo">
                     {% for paso in flujo_ejecucion %}
-                        <div class="paso {% if paso.swap %}paso-con-swap{% else %}paso-normal{% endif %}">
-                            {{ paso.proceso }}<br><small>{{ paso.variable }}</small>
-                            {% if paso.swap %}
-                                <div class="swap-icon">🔁 Swap</div>
+                        <div class="paso-container">
+                            <div class="paso {% if paso.swap %}paso-con-swap{% else %}paso-normal{% endif %}"
+                                 data-index="{{ loop.index0 }}">
+                                {{ paso.proceso }}<br><small>{{ paso.variable }}</small>
+                                {% if paso.swap and paso.expulsado %}
+                                    <div class="swap-icon">
+                                        🔁 Reemplazó:<br>
+                                        {{ paso.expulsado[0] }} – Página {{ paso.expulsado[1] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if not loop.last %}
+                                <div class="flecha">→</div>
                             {% endif %}
                         </div>
                     {% endfor %}
+                </div>
+
+                <script id="pasos-json" type="application/json">
+                    {{ flujo_ejecucion | tojson | safe }}
+                </script>
+
+                <div id="detallesPaso" class="bloque" style="display:none">
+                    <h3>Detalles del Paso</h3>
+                    <p><strong>Proceso:</strong> <span id="det-proceso"></span></p>
+                    <p><strong>Variable:</strong> <span id="det-variable"></span></p>
+                    <p><strong>Dirección Virtual:</strong> <span id="det-virt"></span></p>
+                    <p><strong>Dirección Física:</strong> <span id="det-fisica"></span></p>
+                    <p><strong>Número de Página:</strong> <span id="det-pag"></span></p>
+                    <p><strong>Offset:</strong> <span id="det-offset"></span></p>
                 </div>
             {% endif %}
 
             {% if resultados %}
                 <h2>Resultados de la Simulación</h2>
-
                 {% for resultado in resultados %}
                     <div class="bloque">
                         <h3>Proceso: {{ resultado.proceso }}</h3>
@@ -82,13 +98,11 @@
 
                         <h4>Tabla de Páginas</h4>
                         <table>
-                            <thead>
-                                <tr><th>Página</th><th>Marco</th></tr>
-                            </thead>
+                            <thead><tr><th>Página</th><th>Marco</th></tr></thead>
                             <tbody>
-                                {% for pagina, marco in resultado.tabla_paginas.items() %}
-                                    <tr><td>{{ pagina }}</td><td>{{ marco }}</td></tr>
-                                {% endfor %}
+                            {% for pagina, marco in resultado.tabla_paginas.items() %}
+                                <tr><td>{{ pagina }}</td><td>{{ marco }}</td></tr>
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -132,9 +146,11 @@
                 <h2>Resultados de la Simulación</h2>
                 <p>Los resultados se mostrarán aquí después de ejecutar la simulación.</p>
             {% endif %}
-
         </div>
     </div>
 </form>
+
+<!-- JS externo -->
+<script src="/static/scripts.js"></script>
 </body>
 </html>
