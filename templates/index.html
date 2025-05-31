@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador de Memoria - Inicio</title>
+    <title>Simulador de Memoria - FIFO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
 </head>
@@ -13,16 +13,9 @@
         <div class="panel-izquierdo">
             <div class="bloque">
                 <h3>Configuración de Simulación</h3>
-                <label for="algoritmo"><strong>Algoritmo de reemplazo:</strong></label>
-                <select name="algoritmo" id="algoritmo">
-                    <option value="FIFO" {% if algoritmo == 'FIFO' %}selected{% endif %}>FIFO</option>
-                </select>
-                <br><br>
-
                 <label for="marcos"><strong>Número de marcos:</strong></label>
                 <input type="number" name="marcos" id="marcos" value="{{ marcos if marcos else 3 }}" min="1" max="32" required>
                 <br><br>
-
                 <label>
                     <input type="checkbox" name="modo_paso" {% if session.get('modo_paso') %}checked{% endif %}>
                     Ejecutar paso a paso
@@ -88,7 +81,7 @@
                 </div>
 
                 <div id="explicacionPaso" class="bloque explicacion-visual" style="display:none">
-                    <h3>🧠 Explicación del Paso</h3>
+                    <h3>Explicación del Paso</h3>
                     <p id="texto-explicacion"></p>
                 </div>
 
