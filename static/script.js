@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("det-pag").textContent = paso.pagina;
         document.getElementById("det-offset").textContent = paso.offset;
 
-        // Mostrar explicación narrativa
-        document.getElementById("texto-explicacion").textContent = paso.explicacion;
+        // Mostrar explicación narrativa en HTML estructurado
+        document.getElementById("texto-explicacion").innerHTML = paso.explicacion;
 
         // Activar bloques de visualización
         document.getElementById("detallesPaso").style.display = "block";

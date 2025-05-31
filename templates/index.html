@@ -16,11 +16,6 @@
                 <label for="marcos"><strong>Número de marcos:</strong></label>
                 <input type="number" name="marcos" id="marcos" value="{{ marcos if marcos else 3 }}" min="1" max="32" required>
                 <br><br>
-                <label>
-                    <input type="checkbox" name="modo_paso" {% if session.get('modo_paso') %}checked{% endif %}>
-                    Ejecutar paso a paso
-                </label>
-                <br><br>
                 <button type="submit">Iniciar Simulación</button>
             </div>
 

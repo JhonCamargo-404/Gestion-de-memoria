@@ -2,6 +2,48 @@ from memory.memory_manager import MemoryManager
 from memory.mmu import traducir_direccion_con_gestion
 
 class SimuladorService:
+    def generar_explicacion_paso(self, nombre_proceso, variable, direccion_virtual, pagina, offset,
+                                  direccion_fisica, fallo_pagina, marco, expulsado=None):
+        PAGE_SIZE = 4096
+        html = []
+
+        html.append(f"<p><strong>Proceso:</strong> {nombre_proceso}</p>")
+        html.append(f"<p><strong>Variable:</strong> {variable}</p>")
+        html.append(f"<p><strong>Dirección virtual:</strong> {hex(direccion_virtual)}</p>")
+
+        html.append("<p><strong>Traducción de dirección virtual:</strong></p>")
+        html.append("<ul>")
+        html.append(f"<li><strong>Número de página:</strong> {direccion_virtual} // {PAGE_SIZE} = {pagina}</li>")
+        html.append(f"<li><strong>Offset:</strong> {direccion_virtual} % {PAGE_SIZE} = {offset}</li>")
+        html.append("</ul>")
+
+        if fallo_pagina:
+            html.append(f"<p><strong>Estado previo:</strong> la página {pagina} no se encontraba en la tabla de páginas del proceso, por lo tanto se produjo un <strong>fallo de página</strong>.</p>")
+
+            html.append("<p><strong>Acción realizada:</strong></p>")
+            html.append("<ul>")
+            if expulsado:
+                pid_expulsado, pagina_expulsada = expulsado
+                html.append("<li>La memoria estaba llena, se aplicó el algoritmo FIFO.</li>")
+                html.append(f"<li>Se expulsó la página {pagina_expulsada} del proceso con ID {pid_expulsado} hacia el área de swap.</li>")
+            else:
+                html.append("<li>Había marcos libres disponibles, por lo que la página fue cargada directamente sin reemplazo.</li>")
+            html.append(f"<li>La página {pagina} fue asignada al marco{marco}.</li>")
+            html.append("</ul>")
+        else:
+            html.append(f"<p><strong>Estado previo:</strong> la página {pagina} ya estaba cargada en memoria, no se generó fallo de página.</p>")
+            html.append("<p><strong>Acción realizada:</strong></p>")
+            html.append(f"<ul><li>Se accede directamente al marco {marco} ya asignado.</li></ul>")
+
+        html.append("<p><strong>Cálculo de dirección física:</strong></p>")
+        html.append("<ul>")
+        html.append(f"<li>Dirección física = marco × tamaño de página + offset = {marco} × {PAGE_SIZE} + {offset} = {direccion_fisica}</li>")
+        html.append(f"<li>Este valor decimal {direccion_fisica} se convierte a hexadecimal para representar la dirección física como {hex(direccion_fisica)}.</li>")
+        html.append(f"<li><strong>Resultado final:</strong> dirección física = {hex(direccion_fisica)}</li>")
+        html.append("</ul>")
+
+        return "\n".join(html)
+
     def ejecutar_simulacion_fifo(self, nombres_procesos, procesos, marcos):
         gestor_memoria = MemoryManager(num_marcos=marcos, algoritmo="FIFO")
 
@@ -26,25 +68,17 @@ class SimuladorService:
                 expulsado = list(reemplazo)[0] if reemplazo else None
                 hubo_fallo = pagina not in tabla_paginas_antes
 
-                if hubo_fallo:
-                    if expulsado:
-                        explicacion = (
-                            f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
-                            f"correspondiente a la página {pagina}. Esta página no estaba en memoria, "
-                            f"por lo tanto se produjo un fallo de página. "
-                            f"Se reemplazó la página {expulsado[1]} del proceso con ID {expulsado[0]} para liberar espacio."
-                        )
-                    else:
-                        explicacion = (
-                            f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
-                            f"correspondiente a la página {pagina}. Esta página no estaba en memoria, "
-                            f"pero había marcos disponibles, así que fue cargada sin necesidad de reemplazo."
-                        )
-                else:
-                    explicacion = (
-                        f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
-                        f"y la página {pagina} ya estaba cargada en memoria (no hubo fallo de página)."
-                    )
+                explicacion = self.generar_explicacion_paso(
+                    nombre_proceso=proceso.nombre,
+                    variable=variable,
+                    direccion_virtual=direccion_virtual,
+                    pagina=pagina,
+                    offset=offset,
+                    direccion_fisica=direccion_fisica,
+                    fallo_pagina=hubo_fallo,
+                    marco=marco,
+                    expulsado=expulsado
+                )
 
                 flujo_ejecucion.append({
                     "proceso": proceso.nombre,
