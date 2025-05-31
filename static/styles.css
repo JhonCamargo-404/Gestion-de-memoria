@@ -147,3 +147,9 @@ th, td {
     border-color: #ffcc00;
     background-color: #fffbe6;
 }
+.marco-info {
+    font-size: 0.75em;
+    color: #555;
+    margin-top: 4px;
+}
+

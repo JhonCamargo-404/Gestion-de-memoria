@@ -60,6 +60,11 @@
                                 {% endif %}" 
                                 data-index="{{ loop.index0 }}">
                                 {{ paso.proceso }}<br><small>{{ paso.variable }}</small>
+
+                                {% if paso.marco is not none %}
+                                    <div class="marco-info">Marco {{ paso.marco }}</div>
+                                {% endif %}
+
                                 {% if paso.swap and paso.expulsado %}
                                     <div class="swap-icon">
                                         Reemplazó:<br>
@@ -92,30 +97,6 @@
                     <h3>Explicación del Paso</h3>
                     <p id="texto-explicacion"></p>
                 </div>
-            {% endif %}
-
-            {% if resultados %}
-                <h2>Resultados de la Simulación</h2>
-                {% for resultado in resultados %}
-                    <div class="bloque">
-                        <h3>Proceso: {{ resultado.proceso }}</h3>
-                        <p><strong>Variable:</strong> {{ resultado.variable }}</p>
-                        <p><strong>Dirección Virtual:</strong> {{ resultado.direccion_virtual }}</p>
-                        <p><strong>Número de Página:</strong> {{ resultado.pagina }}</p>
-                        <p><strong>Offset:</strong> {{ resultado.offset }}</p>
-                        <p><strong>Dirección Física:</strong> {{ resultado.direccion_fisica }}</p>
-
-                        <h4>Tabla de Páginas</h4>
-                        <table>
-                            <thead><tr><th>Página</th><th>Marco</th></tr></thead>
-                            <tbody>
-                            {% for pagina, marco in resultado.tabla_paginas.items() %}
-                                <tr><td>{{ pagina }}</td><td>{{ marco }}</td></tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endfor %}
 
                 <div class="bloque">
                     <h3>Estado Global de la Memoria Física</h3>
