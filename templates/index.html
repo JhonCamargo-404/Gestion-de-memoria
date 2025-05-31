@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador de Memoria - FIFO</title>
+    <title>Simulador de Memoria - Inicio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/styles.css">
 </head>
@@ -13,6 +13,12 @@
         <div class="panel-izquierdo">
             <div class="bloque">
                 <h3>Configuración de Simulación</h3>
+                <label for="algoritmo"><strong>Algoritmo de reemplazo:</strong></label>
+                <select name="algoritmo" id="algoritmo">
+                    <option value="FIFO" {% if algoritmo == 'FIFO' %}selected{% endif %}>FIFO</option>
+                </select>
+                <br><br>
+
                 <label for="marcos"><strong>Número de marcos:</strong></label>
                 <input type="number" name="marcos" id="marcos" value="{{ marcos if marcos else 3 }}" min="1" max="32" required>
                 <br><br>
@@ -40,9 +46,8 @@
         </div>
 
         <div class="panel-derecho">
-
             {% if flujo_ejecucion %}
-                <h2>Flujo de Ejecución (FIFO)</h2>
+                <h2>Flujo de Ejecución</h2>
                 <div class="flujo">
                     {% for paso in flujo_ejecucion %}
                         <div class="paso-container">
@@ -59,6 +64,7 @@
                                         {{ paso.expulsado[0] }} – Página {{ paso.expulsado[1] }}
                                     </div>
                                 {% endif %}
+                                <div class="marco-info">Marco: {{ paso.marco }}</div>
                             </div>
                             {% if not loop.last %}
                                 <div class="flecha">→</div>
@@ -82,12 +88,12 @@
                 </div>
 
                 <div id="explicacionPaso" class="bloque explicacion-visual" style="display:none">
-                    <h3>Explicación del Paso</h3>
+                    <h3>🧠 Explicación del Paso</h3>
                     <p id="texto-explicacion"></p>
                 </div>
 
                 <div class="bloque">
-                    <h3>Estado Global de la Memoria Física (FIFO)</h3>
+                    <h3>Estado Global de la Memoria Física</h3>
                     <table>
                         <thead>
                             <tr><th>Marco</th><th>Proceso (PID)</th><th>Página</th></tr>
@@ -119,6 +125,11 @@
                         <li><strong>Reemplazos realizados:</strong> {{ estadisticas.reemplazos }}</li>
                         <li><strong>Tasa de fallos:</strong> {{ estadisticas.tasa_fallos }}%</li>
                     </ul>
+                </div>
+
+                <div class="bloque">
+                    <h3>Visualización de Cola FIFO</h3>
+                    <div id="fifo-visual-container" class="fifo-container"></div>
                 </div>
             {% else %}
                 <h2>Resultados de la Simulación</h2>
