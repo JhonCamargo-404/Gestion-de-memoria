@@ -143,3 +143,7 @@ th, td {
     margin-top: 12px;
     font-size: 1em;
 }
+.paso-fallo {
+    border-color: #ffcc00;
+    background-color: #fffbe6;
+}

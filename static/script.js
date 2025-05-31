@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const pasoDataElement = document.getElementById("pasos-json");
-    if (!pasoDataElement) return;
+    if (!pasoDataElement) {
+        console.warn("No se encontró el elemento pasos-json.");
+        return;
+    }
 
     let pasos;
     try {
@@ -11,12 +14,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const pasoDivs = document.querySelectorAll(".paso");
+    if (pasoDivs.length === 0) {
+        console.warn("No se encontraron elementos con clase 'paso'.");
+        return;
+    }
 
     pasoDivs.forEach((el, index) => {
+        el.style.cursor = "pointer";  // para que el usuario vea que es clickeable
         el.addEventListener("click", () => {
             const paso = pasos[index];
 
-            // Mostrar detalles del paso
+            console.log("Click en paso:", paso);
+
             document.getElementById("det-proceso").textContent = paso.proceso;
             document.getElementById("det-variable").textContent = paso.variable;
             document.getElementById("det-virt").textContent = paso.direccion_virtual;
@@ -26,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             document.getElementById("detallesPaso").style.display = "block";
 
-            // Mostrar explicación didáctica del paso
             if (paso.explicacion) {
                 document.getElementById("texto-explicacion").textContent = paso.explicacion;
                 document.getElementById("explicacionPaso").style.display = "block";

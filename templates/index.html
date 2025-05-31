@@ -53,11 +53,16 @@
                 <div class="flujo">
                     {% for paso in flujo_ejecucion %}
                         <div class="paso-container">
-                            <div class="paso {% if paso.swap %}paso-con-swap{% else %}paso-normal{% endif %}" data-index="{{ loop.index0 }}">
+                            <div class="paso 
+                                {% if paso.swap %}paso-con-swap
+                                {% elif paso.fallo_pagina %}paso-fallo
+                                {% else %}paso-normal
+                                {% endif %}" 
+                                data-index="{{ loop.index0 }}">
                                 {{ paso.proceso }}<br><small>{{ paso.variable }}</small>
                                 {% if paso.swap and paso.expulsado %}
                                     <div class="swap-icon">
-                                        🔁 Reemplazó:<br>
+                                        Reemplazó:<br>
                                         {{ paso.expulsado[0] }} – Página {{ paso.expulsado[1] }}
                                     </div>
                                 {% endif %}
@@ -84,7 +89,7 @@
                 </div>
 
                 <div id="explicacionPaso" class="bloque explicacion-visual" style="display:none">
-                    <h3>🧠 Explicación del Paso</h3>
+                    <h3>Explicación del Paso</h3>
                     <p id="texto-explicacion"></p>
                 </div>
             {% endif %}
@@ -141,9 +146,7 @@
                     <h4>Estadísticas de Rendimiento</h4>
                     <ul>
                         <li><strong>Total de accesos:</strong> {{ estadisticas.accesos }}</li>
-                        <li><strong>Fallos de página:</strong> {{ estadisticas.fallos_pagina }}</li>
                         <li><strong>Reemplazos realizados:</strong> {{ estadisticas.reemplazos }}</li>
-                        <li><strong>Tasa de fallos:</strong> {{ estadisticas.tasa_fallos }}%</li>
                     </ul>
                 </div>
             {% else %}
@@ -153,6 +156,6 @@
         </div>
     </div>
 </form>
-<script src="/static/scripts.js"></script>
+<script src="../static/script.js"></script>
 </body>
 </html>
