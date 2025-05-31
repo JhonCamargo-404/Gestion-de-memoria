@@ -135,3 +135,11 @@ th, td {
     color: #e67e22;
     margin-top: 5px;
 }
+
+.explicacion-visual {
+    background-color: #f8f9fa;
+    border-left: 5px solid #007bff;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 1em;
+}

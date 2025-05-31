@@ -1,15 +1,38 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const pasoDataElement = document.getElementById("pasos-json");
+    if (!pasoDataElement) return;
 
-const jsonElement = document.getElementById("pasos-json");
-const pasos = JSON.parse(jsonElement.textContent);
+    let pasos;
+    try {
+        pasos = JSON.parse(pasoDataElement.textContent);
+    } catch (error) {
+        console.error("No se pudo parsear los datos de pasos:", error);
+        return;
+    }
 
-function mostrarDetalles(index) {
-    const p = pasos[index];
+    const pasoDivs = document.querySelectorAll(".paso");
 
-    document.getElementById('det-proceso').innerText = p.proceso;
-    document.getElementById('det-variable').innerText = p.variable;
-    document.getElementById('det-virt').innerText = p.direccion_virtual;
-    document.getElementById('det-fisica').innerText = p.direccion_fisica;
-    document.getElementById('det-pag').innerText = p.pagina;
-    document.getElementById('det-offset').innerText = p.offset;
-    document.getElementById('detallesPaso').style.display = 'block';
-}
+    pasoDivs.forEach((el, index) => {
+        el.addEventListener("click", () => {
+            const paso = pasos[index];
+
+            // Mostrar detalles del paso
+            document.getElementById("det-proceso").textContent = paso.proceso;
+            document.getElementById("det-variable").textContent = paso.variable;
+            document.getElementById("det-virt").textContent = paso.direccion_virtual;
+            document.getElementById("det-fisica").textContent = paso.direccion_fisica;
+            document.getElementById("det-pag").textContent = paso.pagina;
+            document.getElementById("det-offset").textContent = paso.offset;
+
+            document.getElementById("detallesPaso").style.display = "block";
+
+            // Mostrar explicación didáctica del paso
+            if (paso.explicacion) {
+                document.getElementById("texto-explicacion").textContent = paso.explicacion;
+                document.getElementById("explicacionPaso").style.display = "block";
+            } else {
+                document.getElementById("explicacionPaso").style.display = "none";
+            }
+        });
+    });
+});

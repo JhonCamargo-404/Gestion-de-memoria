@@ -6,10 +6,8 @@ from memory.mmu import traducir_direccion_con_gestion
 app = Flask(__name__)
 app.secret_key = "simulador_memoria"
 
-# Variable global para el modo paso a paso
 gestor_memoria_global = None
 
-# Procesos disponibles
 procesos = [
     Proceso("App1", 0x08000000, {"varX": 0x0012, "contador": 0x0100}, 2, "fijo"),
     Proceso("App2", 0x10000000, {"buffer": 0x0200, "resultado": 0x0300}, 3, "variable"),
@@ -18,18 +16,22 @@ procesos = [
     Proceso("App5", 0x40000000, {"msg": 0x0020, "code": 0x0080}, 2, "fijo"),
 ]
 
-# Obtener procesos seleccionados
 def obtener_procesos_seleccionados(nombres):
     return [p for p in procesos if p.nombre in nombres]
 
 @app.route("/")
 def index():
+    global gestor_memoria_global
+    gestor_memoria_global = None
+    session.clear()
     return render_template("index.html", procesos=procesos)
 
 @app.route("/traducir", methods=["POST"])
 def traducir():
     global gestor_memoria_global
-
+    gestor_memoria_global = None
+    for proceso in procesos:
+        proceso.tabla_paginas = {}
     nombres_procesos = request.form.getlist("procesos")
     algoritmo = request.form.get("algoritmo", "FIFO")
     marcos = int(request.form.get("marcos", 3))
@@ -62,20 +64,40 @@ def traducir():
             direccion_fisica, pagina, offset = traducir_direccion_con_gestion(
                 proceso, direccion_virtual, gestor_memoria
             )
-
             estado_despues = set((pid, pag) for pid, pag in gestor_memoria.swap)
-            swap_ocurrido = len(estado_despues) > len(estado_antes)
-
             reemplazo = estado_despues - estado_antes
+            expulsado = list(reemplazo)[0] if reemplazo else None
+
+            if not pagina in proceso.obtener_tabla_paginas():
+                if expulsado:
+                    explicacion = (
+                        f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
+                        f"correspondiente a la página {pagina}. Esta página no estaba en memoria, "
+                        f"por lo tanto se produjo un fallo de página. "
+                        f"Se reemplazó la página {expulsado[1]} del proceso con ID {expulsado[0]} para liberar espacio."
+                    )
+                else:
+                    explicacion = (
+                        f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
+                        f"correspondiente a la página {pagina}. Esta página no estaba en memoria, "
+                        f"pero había marcos disponibles, así que fue cargada sin necesidad de reemplazo."
+                    )
+            else:
+                explicacion = (
+                    f"El proceso {proceso.nombre} accedió a la dirección virtual {hex(direccion_virtual)}, "
+                    f"y la página {pagina} ya estaba cargada en memoria (no hubo fallo de página)."
+                )
+
             flujo_ejecucion.append({
                 "proceso": proceso.nombre,
                 "variable": variable,
                 "swap": bool(reemplazo),
-                "expulsado": list(reemplazo)[0] if reemplazo else None,
+                "expulsado": expulsado,
                 "direccion_virtual": hex(direccion_virtual),
                 "direccion_fisica": hex(direccion_fisica),
                 "pagina": pagina,
-                "offset": offset
+                "offset": offset,
+                "explicacion": explicacion
             })
 
             resultados.append({
@@ -107,13 +129,16 @@ def paso():
     paso_actual = session.get("paso_actual", 0)
     cola = session.get("cola_pasos", [])
     if paso_actual >= len(cola):
-        return redirect(url_for("index"))  
+        return redirect(url_for("index"))
+
     nombre_proc, variable = cola[paso_actual]
     proceso = next(p for p in procesos if p.nombre == nombre_proc)
     algoritmo = session.get("algoritmo", "FIFO")
     marcos = session.get("marcos", 3)
+
     if gestor_memoria_global is None:
         gestor_memoria_global = MemoryManager(num_marcos=marcos, algoritmo=algoritmo)
+
     gestor_memoria = gestor_memoria_global
     direccion_virtual = proceso.obtener_direccion_virtual(variable)
     direccion_fisica, pagina, offset = traducir_direccion_con_gestion(

@@ -12,6 +12,13 @@ class MemoryManager:
         self.total_accesos = 0
         self.total_fallos_pagina = 0
         self.total_reemplazos = 0
+        self.__reset_estadisticas()
+        
+    def __reset_estadisticas(self):
+        self.total_accesos = 0
+        self.total_fallos_pagina = 0
+        self.total_reemplazos = 0
+        self.tiempo = 0
 
     def cargar_pagina(self, proceso, pagina):
         pid = id(proceso)

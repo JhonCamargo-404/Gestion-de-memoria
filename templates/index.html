@@ -53,8 +53,7 @@
                 <div class="flujo">
                     {% for paso in flujo_ejecucion %}
                         <div class="paso-container">
-                            <div class="paso {% if paso.swap %}paso-con-swap{% else %}paso-normal{% endif %}"
-                                 data-index="{{ loop.index0 }}">
+                            <div class="paso {% if paso.swap %}paso-con-swap{% else %}paso-normal{% endif %}" data-index="{{ loop.index0 }}">
                                 {{ paso.proceso }}<br><small>{{ paso.variable }}</small>
                                 {% if paso.swap and paso.expulsado %}
                                     <div class="swap-icon">
@@ -82,6 +81,11 @@
                     <p><strong>Dirección Física:</strong> <span id="det-fisica"></span></p>
                     <p><strong>Número de Página:</strong> <span id="det-pag"></span></p>
                     <p><strong>Offset:</strong> <span id="det-offset"></span></p>
+                </div>
+
+                <div id="explicacionPaso" class="bloque explicacion-visual" style="display:none">
+                    <h3>🧠 Explicación del Paso</h3>
+                    <p id="texto-explicacion"></p>
                 </div>
             {% endif %}
 
@@ -149,8 +153,6 @@
         </div>
     </div>
 </form>
-
-<!-- JS externo -->
 <script src="/static/scripts.js"></script>
 </body>
 </html>
