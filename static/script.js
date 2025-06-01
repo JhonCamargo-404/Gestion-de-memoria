@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("det-fisica").textContent = paso.direccion_fisica;
             document.getElementById("det-pag").textContent = paso.pagina;
             document.getElementById("det-offset").textContent = paso.offset;
-            document.getElementById("texto-explicacion").textContent = paso.explicacion;
+            document.getElementById("texto-explicacion").innerHTML = paso.explicacion;
 
             document.getElementById("detallesPaso").style.display = "block";
             document.getElementById("explicacionPaso").style.display = "block";
