@@ -6,12 +6,13 @@ main_routes = Blueprint("main_routes", __name__)
 service = SimuladorService()
 
 procesos = [
-    Proceso("App1", 0x08000000, {"varX": 0x0012, "contador": 0x0100}, 2, "fijo"),
-    Proceso("App2", 0x10000000, {"buffer": 0x0200, "resultado": 0x0300}, 3, "variable"),
-    Proceso("App3", 0x20000000, {"temp": 0x0040, "flag": 0x0100}, 1, "fijo"),
-    Proceso("App4", 0x30000000, {"pos": 0x0050, "limit": 0x0090}, 4, "variable"),
-    Proceso("App5", 0x40000000, {"msg": 0x0020, "code": 0x0080}, 2, "fijo"),
+    Proceso("EditorTexto", 0x08000000, {"varX": 0x0012, "contador": 0x0100}, 2, "fijo"),
+    Proceso("Compilador", 0x10000000, {"buffer": 0x0200, "resultado": 0x0300}, 3, "variable"),
+    Proceso("Logger", 0x20000000, {"temp": 0x0040, "flag": 0x0100}, 1, "fijo"),
+    Proceso("Juego", 0x30000000, {"pos": 0x0050, "limit": 0x0090}, 4, "variable"),
+    Proceso("ClienteRed", 0x40000000, {"msg": 0x0020, "code": 0x0080}, 2, "fijo")
 ]
+
 
 @main_routes.route("/")
 def index():

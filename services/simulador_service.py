@@ -3,44 +3,57 @@ from memory.mmu import traducir_direccion_con_gestion
 
 class SimuladorService:
     def generar_explicacion_paso(self, nombre_proceso, variable, direccion_virtual, pagina, offset,
-                                  direccion_fisica, fallo_pagina, marco, expulsado=None):
+                                  direccion_fisica, fallo_pagina, marco, expulsado=None, base_virtual=None):
         PAGE_SIZE = 4096
         html = []
 
         html.append(f"<p><strong>Proceso:</strong> {nombre_proceso}</p>")
         html.append(f"<p><strong>Variable:</strong> {variable}</p>")
-        html.append(f"<p><strong>Dirección virtual:</strong> {hex(direccion_virtual)}</p>")
 
-        html.append("<p><strong>Traducción de dirección virtual:</strong></p>")
+        if base_virtual is not None:
+            html.append(f"<p><strong>Cálculo de Dirección Virtual</strong></p>")
+            html.append("<ul>")
+            html.append(f"<li>Base virtual del proceso: {hex(base_virtual)} (decimal: {base_virtual})</li>")
+            html.append(f"<li>Offset de la variable '{variable}': {hex(offset)} (decimal: {offset})</li>")
+            html.append("</ul>")
+            html.append(f"<div style='margin-left:1em;'>Dirección virtual = base virtual + offset</div>")
+            html.append(f"<div style='margin-left:1em;'>{base_virtual} + {offset} = {direccion_virtual} = {hex(direccion_virtual)}</div>")
+
+        html.append(f"<p><strong>División de la Dirección Virtual</strong></p>")
         html.append("<ul>")
-        html.append(f"<li><strong>Número de página:</strong> {direccion_virtual} // {PAGE_SIZE} = {pagina}</li>")
-        html.append(f"<li><strong>Offset:</strong> {direccion_virtual} % {PAGE_SIZE} = {offset}</li>")
+        html.append(f"<li>Tamaño de página: {PAGE_SIZE} bytes</li>")
         html.append("</ul>")
+        html.append("""
+            <div style="margin-left:1em;">
+                Número de página =  Dirección virtual ÷ Tamaño de página <br>
+                Número de página =  {} ÷ {} = {}
+            </div>
+            <div style="margin-left:1em; margin-top:0.5em;">
+                Offset = Dirección virtual mod Tamaño de página<br>
+                Offset = {} mod {} = {}
+            </div>
+        """.format(direccion_virtual, PAGE_SIZE, pagina, direccion_virtual, PAGE_SIZE, offset))
 
         if fallo_pagina:
-            html.append(f"<p><strong>Estado previo:</strong> la página {pagina} no se encontraba en la tabla de páginas del proceso, por lo tanto se produjo un <strong>fallo de página</strong>.</p>")
-
-            html.append("<p><strong>Acción realizada:</strong></p>")
-            html.append("<ul>")
+            html.append(f"<p><strong>Fallo de Página Detectado</strong></p>")
+            html.append(f"<p>La página {pagina} no se encontraba en la tabla de páginas del proceso.</p>")
             if expulsado:
                 pid_expulsado, pagina_expulsada = expulsado
-                html.append("<li>La memoria estaba llena, se aplicó el algoritmo FIFO.</li>")
-                html.append(f"<li>Se expulsó la página {pagina_expulsada} del proceso con ID {pid_expulsado} hacia el área de swap.</li>")
+                html.append(f"<li>Se aplicó la política FIFO. Se expulsó la página {pagina_expulsada} del proceso con ID {pid_expulsado} hacia swap.</li>")
             else:
-                html.append("<li>Había marcos libres disponibles, por lo que la página fue cargada directamente sin reemplazo.</li>")
-            html.append(f"<li>La página {pagina} fue asignada al marco{marco}.</li>")
-            html.append("</ul>")
+                html.append("<li>Se cargó la nueva página en un marco libre.</li>")
+            html.append(f"<li>La página {pagina} fue asignada al marco {marco}.</li></ul>")
         else:
-            html.append(f"<p><strong>Estado previo:</strong> la página {pagina} ya estaba cargada en memoria, no se generó fallo de página.</p>")
-            html.append("<p><strong>Acción realizada:</strong></p>")
-            html.append(f"<ul><li>Se accede directamente al marco {marco} ya asignado.</li></ul>")
+            html.append(f"<p><strong>Acceso sin Fallo de Página</strong></p>")
+            html.append(f"<p>La página {pagina} ya estaba cargada en memoria física.</p>")
 
-        html.append("<p><strong>Cálculo de dirección física:</strong></p>")
-        html.append("<ul>")
-        html.append(f"<li>Dirección física = marco × tamaño de página + offset = {marco} × {PAGE_SIZE} + {offset} = {direccion_fisica}</li>")
-        html.append(f"<li>Este valor decimal {direccion_fisica} se convierte a hexadecimal para representar la dirección física como {hex(direccion_fisica)}.</li>")
-        html.append(f"<li><strong>Resultado final:</strong> dirección física = {hex(direccion_fisica)}</li>")
-        html.append("</ul>")
+        html.append(f"<p><strong>Cálculo de Dirección Física</strong></p>")
+        html.append("""
+            <div style="margin-left:1em;">
+                Dirección física = marco × tamaño de página + offset<br>
+                Dirección física = {} × {} + {} = {} = {}
+            </div>
+        """.format(marco, PAGE_SIZE, offset, direccion_fisica, hex(direccion_fisica)))
 
         return "\n".join(html)
 
@@ -77,7 +90,8 @@ class SimuladorService:
                     direccion_fisica=direccion_fisica,
                     fallo_pagina=hubo_fallo,
                     marco=marco,
-                    expulsado=expulsado
+                    expulsado=expulsado,
+                    base_virtual=proceso.base_virtual
                 )
 
                 flujo_ejecucion.append({
