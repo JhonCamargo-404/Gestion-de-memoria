@@ -1,0 +1,61 @@
+[
+    {
+        "nombre": "EditorTexto",
+        "base_virtual": 134217728,
+        "tabla_simbolos": {
+            "varX": 18,
+            "contador": 256
+        },
+        "tamano_paginas": 2,
+        "esquema_carga": "fijo"
+    },
+    {
+        "nombre": "Compilador",
+        "base_virtual": 268435456,
+        "tabla_simbolos": {
+            "buffer": 512,
+            "resultado": 768
+        },
+        "tamano_paginas": 3,
+        "esquema_carga": "variable"
+    },
+    {
+        "nombre": "Logger",
+        "base_virtual": 536870912,
+        "tabla_simbolos": {
+            "temp": 64,
+            "flag": 256
+        },
+        "tamano_paginas": 1,
+        "esquema_carga": "fijo"
+    },
+    {
+        "nombre": "Juego",
+        "base_virtual": 805306368,
+        "tabla_simbolos": {
+            "pos": 80,
+            "limit": 144
+        },
+        "tamano_paginas": 4,
+        "esquema_carga": "variable"
+    },
+    {
+        "nombre": "ClienteRed",
+        "base_virtual": 1073741824,
+        "tabla_simbolos": {
+            "msg": 32,
+            "code": 128
+        },
+        "tamano_paginas": 2,
+        "esquema_carga": "fijo"
+    },
+    {
+        "nombre": "sistemas",
+        "base_virtual": 1342177280,
+        "tabla_simbolos": {
+            "qwer": 74565
+        },
+        "tamano_paginas": 1,
+        "esquema_carga": "fijo"
+    }
+]
