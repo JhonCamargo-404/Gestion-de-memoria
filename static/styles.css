@@ -216,3 +216,24 @@ th, td {
     from { transform: translateY(-15px); opacity: 0; }
     to   { transform: translateY(0); opacity: 1; }
 }
+.paso-precarga {
+    background-color: #e6f7e6; /* verde muy claro */
+    border: 1px solid #88cc88;
+}
+
+.paso-error {
+    background-color: #fbe6e6; /* rojo muy claro */
+    border: 1px solid #e06666;
+}
+.paso-precarga {
+    background-color: #e8fbe8;
+    border: 1px solid #2e8b57;
+    font-style: italic;
+}
+
+.paso-error {
+    background-color: #fdecea;
+    border: 1px solid #d93025;
+    color: #a94442;
+    font-weight: bold;
+}
