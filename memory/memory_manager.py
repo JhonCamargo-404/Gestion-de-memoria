@@ -2,6 +2,9 @@ from collections import deque
 
 class MemoryManager:
     def __init__(self, num_marcos=4, algoritmo="FIFO"):
+        """
+        Inicializa el gestor de memoria con el número de marcos y el algoritmo de reemplazo.
+        """
         self.num_marcos = num_marcos
         self.memoria_fisica = {}  # {marco: (pid, pagina)}
         self.swap = set()         # {(pid, pagina)}
@@ -15,12 +18,20 @@ class MemoryManager:
         self.__reset_estadisticas()
         
     def __reset_estadisticas(self):
+        """
+        Reinicia las estadísticas de accesos, fallos de página y reemplazos.
+        """
         self.total_accesos = 0
         self.total_fallos_pagina = 0
         self.total_reemplazos = 0
         self.tiempo = 0
 
     def cargar_pagina(self, proceso, pagina):
+        """
+        Carga una página en memoria para un proceso.
+        Si la página ya está en memoria, actualiza LRU y retorna el marco.
+        Si no, maneja el fallo de página y realiza reemplazo si es necesario.
+        """
         pid = id(proceso)
         self.total_accesos += 1
 
@@ -63,6 +74,9 @@ class MemoryManager:
         return marco_reemplazo
 
     def seleccionar_marco_reemplazo(self):
+        """
+        Selecciona el marco a reemplazar según el algoritmo configurado (FIFO o LRU).
+        """
         if self.algoritmo == "FIFO":
             if self.pila_fifo:
                 return self.pila_fifo.popleft()
@@ -84,6 +98,9 @@ class MemoryManager:
             raise ValueError(f"Algoritmo '{self.algoritmo}' no soportado.")
 
     def actualizar_lru(self, pid, pagina):
+        """
+        Actualiza la información de uso reciente para el algoritmo LRU.
+        """
         if self.algoritmo == "LRU":
             # Solo registrar si la página está actualmente en memoria
             if any((p == pid and pag == pagina) for (p, pag) in self.memoria_fisica.values()):
@@ -91,12 +108,18 @@ class MemoryManager:
                 self.recientes[(pid, pagina)] = self.tiempo
 
     def _primer_marco_libre(self):
+        """
+        Busca y retorna el primer marco libre disponible.
+        """
         for i in range(self.num_marcos):
             if i not in self.memoria_fisica:
                 return i
         raise RuntimeError("No hay marcos libres disponibles")
 
     def obtener_estado(self):
+        """
+        Retorna el estado actual de la memoria física y el área de swap.
+        """
         memoria = {i: self.memoria_fisica.get(i, None) for i in range(self.num_marcos)}
         return {
             "memoria_fisica": memoria,
@@ -104,6 +127,9 @@ class MemoryManager:
         }
 
     def obtener_estadisticas(self):
+        """
+        Retorna estadísticas de accesos, fallos de página, reemplazos y tasa de fallos.
+        """
         tasa_fallos = (self.total_fallos_pagina / self.total_accesos * 100) if self.total_accesos > 0 else 0
         return {
             "accesos": self.total_accesos,

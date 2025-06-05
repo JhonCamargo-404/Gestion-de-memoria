@@ -14,6 +14,10 @@ procesos = []
 # FUNCIONES DE CARGA Y GUARDADO
 # ------------------------------
 def cargar_procesos_desde_archivo():
+    """
+    Carga la lista de procesos desde un archivo JSON.
+    Si el archivo no existe, inicializa una lista de procesos por defecto.
+    """
     global procesos
     if not os.path.exists(archivo_procesos):
         procesos = [
@@ -35,6 +39,9 @@ def cargar_procesos_desde_archivo():
             ) for p in datos]
 
 def guardar_todos_los_procesos():
+    """
+    Guarda todos los procesos actuales en el archivo JSON.
+    """
     datos_limpios = [
         {
             "nombre": p.nombre,
@@ -48,6 +55,11 @@ def guardar_todos_los_procesos():
         json.dump(datos_limpios, f, indent=4)
 
 def guardar_proceso_en_archivo(proceso):
+    """
+    Agrega un nuevo proceso a la lista y lo guarda en el archivo JSON.
+    Args:
+        proceso (Proceso): Proceso a guardar.
+    """
     procesos.append(proceso)
     guardar_todos_los_procesos()
 
@@ -56,11 +68,18 @@ def guardar_proceso_en_archivo(proceso):
 # ------------------------------
 @main_routes.route("/")
 def index():
+    """
+    Ruta principal. Limpia la sesión y muestra la página principal con la lista de procesos.
+    """
     session.clear()
     return render_template("index.html", procesos=procesos)
 
 @main_routes.route("/traducir", methods=["POST"])
 def traducir():
+    """
+    Ruta para traducir direcciones virtuales a físicas usando el simulador.
+    Reinicia las tablas de páginas de los procesos y ejecuta la simulación FIFO.
+    """
     for proceso in procesos:
         proceso.tabla_paginas = {}
 
@@ -83,6 +102,11 @@ def traducir():
 
 @main_routes.route("/agregar_proceso_ajax", methods=["POST"])
 def agregar_proceso_ajax():
+    """
+    Ruta para agregar un nuevo proceso mediante una petición AJAX.
+    Recibe los datos del formulario, crea el proceso y lo guarda.
+    Devuelve el HTML del checkbox para el nuevo proceso.
+    """
     nombre = request.form["nombre"]
     base_virtual = int(request.form["base_virtual"], 16)
     paginas = int(request.form["paginas"])
@@ -109,6 +133,13 @@ def agregar_proceso_ajax():
 # FUNCIONES DE RENDER HTML
 # ------------------------------
 def generar_checkbox_html(proceso):
+    """
+    Genera el HTML para el checkbox de selección de un proceso.
+    Args:
+        proceso (Proceso): Proceso para el cual generar el checkbox.
+    Returns:
+        str: HTML del checkbox.
+    """
     return f"""
     <div class=\"form-control\">
         <label>

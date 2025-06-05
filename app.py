@@ -4,11 +4,12 @@ from routes.main_routes import main_routes, cargar_procesos_desde_archivo
 app = Flask(__name__)
 app.secret_key = "memoria_virtual"
 
-# Cargar procesos desde archivo si existen (o crear por defecto si no)
+# Carga los procesos desde archivo JSON o crea los procesos por defecto si el archivo no existe.
 cargar_procesos_desde_archivo()
 
-# Registrar las rutas principales
+# Registra el blueprint principal con las rutas de la aplicación.
 app.register_blueprint(main_routes)
 
 if __name__ == "__main__":
+    # Inicia la aplicación Flask en modo debug.
     app.run(debug=True)

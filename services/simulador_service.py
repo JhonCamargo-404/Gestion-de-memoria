@@ -4,6 +4,24 @@ from memory.mmu import traducir_direccion_con_gestion
 class SimuladorService:
     def generar_explicacion_paso(self, nombre_proceso, variable, direccion_virtual, pagina, offset,
                                   direccion_fisica, fallo_pagina, marco, expulsado=None, base_virtual=None):
+        """
+        Genera una explicación detallada en HTML del paso de traducción de una dirección virtual a física.
+        Incluye información sobre el cálculo de la dirección virtual, división en página y offset,
+        si hubo fallo de página, reemplazo y el cálculo de la dirección física.
+        Args:
+            nombre_proceso (str): Nombre del proceso.
+            variable (str): Nombre de la variable.
+            direccion_virtual (int): Dirección virtual calculada.
+            pagina (int): Número de página.
+            offset (int): Offset dentro de la página.
+            direccion_fisica (int): Dirección física resultante.
+            fallo_pagina (bool): Indica si hubo fallo de página.
+            marco (int): Marco físico asignado.
+            expulsado (tuple, optional): Página expulsada en caso de reemplazo.
+            base_virtual (int, optional): Base virtual del proceso.
+        Returns:
+            str: Explicación en HTML.
+        """
         PAGE_SIZE = 4096
         html = []
 
@@ -58,6 +76,17 @@ class SimuladorService:
         return "\n".join(html)
 
     def ejecutar_simulacion_fifo(self, nombres_procesos, procesos, marcos):
+        """
+        Ejecuta la simulación del algoritmo FIFO para la traducción de direcciones virtuales a físicas.
+        Recorre los procesos y variables seleccionados, traduce las direcciones y almacena los resultados,
+        el flujo de ejecución, el estado de la memoria y estadísticas.
+        Args:
+            nombres_procesos (list): Nombres de los procesos seleccionados.
+            procesos (list): Lista de instancias de Proceso.
+            marcos (int): Número de marcos de memoria física.
+        Returns:
+            dict: Diccionario con resultados, flujo de ejecución, estado de memoria y estadísticas.
+        """
         gestor_memoria = MemoryManager(num_marcos=marcos, algoritmo="FIFO")
 
         procesos_seleccionados = [p for p in procesos if p.nombre in nombres_procesos]

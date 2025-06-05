@@ -9,6 +9,7 @@
 <body>
 <div class="layout">
 
+    <!-- Panel izquierdo: configuración y agregar procesos -->
     <div class="panel-izquierdo">
         <form action="/traducir" method="POST">
             <div class="bloque">
@@ -37,26 +38,21 @@
 
         <div class="bloque">
             <h3>Agregar Proceso Manualmente</h3>
-
             <form id="form-agregar-proceso">
                 <label>Nombre del proceso:</label>
                 <input type="text" id="nombre"><br><br>
-
                 <label>Base virtual (hex):</label>
                 <div class="prefixed-input">
                     <span>0x</span>
                     <input type="text" id="base_virtual_suffix" placeholder="50000000" maxlength="8">
                 </div><br><br>
-
                 <label>Número de páginas:</label>
                 <input type="number" id="paginas" min="1" max="10"><br><br>
-
                 <label>Esquema de carga:</label>
                 <select id="esquema">
                     <option value="fijo">Fijo</option>
                     <option value="variable">Variable</option>
                 </select><br><br>
-
                 <label>Variables:</label><br>
                 <div class="prefixed-input">
                     <span>0x</span>
@@ -64,7 +60,6 @@
                 </div>
                 <input type="text" id="var-nombre" placeholder="Nombre">
                 <button type="button" onclick="agregarVariable()">Agregar</button>
-
                 <table id="tabla-variables" style="margin-top: 1em; width: 100%;">
                     <thead>
                         <tr>
@@ -75,13 +70,13 @@
                     </thead>
                     <tbody></tbody>
                 </table>
-
                 <br>
                 <button type="submit">Agregar Proceso</button>
             </form>
         </div>
     </div>
 
+    <!-- Panel derecho: resultados y visualización -->
     <div class="panel-derecho">
         {% if flujo_ejecucion %}
             <h2>Flujo de Ejecución</h2>
@@ -158,7 +153,7 @@
                 <h4>Estadísticas de Rendimiento</h4>
                 <ul>
                     <li><strong>Total de accesos:</strong> {{ estadisticas.accesos }}</li>
-                   <li><strong>Reemplazos realizados:</strong> {{ estadisticas.reemplazos }}</li>
+                    <li><strong>Reemplazos realizados:</strong> {{ estadisticas.reemplazos }}</li>
                 </ul>
             </div>
 

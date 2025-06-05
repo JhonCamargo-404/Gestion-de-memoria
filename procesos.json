@@ -57,5 +57,14 @@
         },
         "tamano_paginas": 1,
         "esquema_carga": "fijo"
+    },
+    {
+        "nombre": "software",
+        "base_virtual": 1610612736,
+        "tabla_simbolos": {
+            "var1": 768
+        },
+        "tamano_paginas": 3,
+        "esquema_carga": "fijo"
     }
 ]
